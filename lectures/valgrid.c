@@ -6,16 +6,16 @@
 int main(int argc, char *argv[])
 {
 	char *p;
-	int num;
+//	int num;
 
 
 	mallopt(M_CHECK_ACTION, 3);
 
 	p = malloc(1000);
 //	p = malloc(2000); //утечка памяти
-//	p[1000] = 'A';
+	p[1000] = 'A';
 
-	printf("num=%d\n", num);
+//	printf("num=%d\n", num);
 
 	if(p == NULL) {
 		fprintf(stderr, "malloc() failed");
