@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 
-//новый тип данных 
+//новый тип данных
 //sizeof = 24 байта
 struct s_list {
 	int id;
@@ -21,7 +21,7 @@ struct s_list {
 struct s_list *create_node(int set_id, char *set_name) {
 
 	//переменная node содержит ссылку на начало выделенной области
-	struct s_list *node = (struct s_list* )malloc(sizeof(struct s_list)); //- создаем область узла
+	struct s_list *node = malloc(sizeof(struct s_list)); //- создаем область узла
 								       //и в переменную заносим
 								       //ссылку на ее начало
 	// область данных
@@ -47,13 +47,16 @@ void push_front(struct s_list **list, int set_id, char *set_name)
 
 
 int main(void) {
-	struct s_list *list = create_node(0, "абонент_1"); // переменная содержит ссыку на начало списка
+	struct s_list *list = create_node(0, "Name1"); // переменная содержит ссыку на начало списка
 	
-	printf("id=%d name=%s\n", list -> id, list -> name);
-
-	if(list -> next == NULL)
-		printf("<list -> next == NULL>\n");
+	push_front(&list, 1, "Name2");
 	
-	free(list);
+	while(list != NULL)
+	{
+		printf("id=%d name=%s\n", list -> id, list -> name);
+	//	printf("<list -> next == NULL>\n");
+		list = list -> next;
+	}
+	free (list);
 	return 0;
 }

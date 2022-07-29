@@ -34,7 +34,8 @@ int main(void)
                 switch (io)
                 {
                         case 1:
-				chel = malloc((3 * 20 * sizeof(char))+(1 * sizeof(int))) // в структуре 3 char из 20 элементов и 1 int. выделяем память для одного пользователя
+				chel = malloc((3 * 20 * sizeof(char))+(1 * sizeof(int))) // в структуре 3 char из 20 элементов и 1 int
+											 // выделяем память для одного пользователя
                                 for (i = 0; i < 10; i++)
                                 {
                                         if(0 == chel[i].id_chel)
