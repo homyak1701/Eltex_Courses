@@ -20,8 +20,6 @@ pthread_mutex_t mutex3 = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t mutex4 = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t mutex5 = PTHREAD_MUTEX_INITIALIZER;
 
-//pthread_mutex_t mutexs[5] = {mutex1, mutex2, mutex3, mutex4, mutex5};
-
 struct trade{
         int goods;
 };
@@ -29,6 +27,7 @@ struct trade{
 struct buyer{
 	int needBuy;
 	int current_product;
+	int number_buyer;
 	struct trade **infoshop;
 };
 
@@ -60,16 +59,18 @@ int main(void){
 	struct trade *shop_main; /*объект магазины*/
 
 	
-
+	/*ссылка на область покупателя*/
 	buyer_main = calloc(AMOUNT_BUYER, sizeof(struct buyer)); /* выделяем область
 									   под объекты */
 	if(NULL == buyer_main)
 		perror("error_calloc_buyermain");
 	
+	/*ссылка на область поставщика*/
 	refiller_main = malloc(sizeof(struct refiller));
 	if(NULL == refiller_main)
                 perror("error_calloc_refillermain");
 	
+	/*ссылка на облать магазинов*/
 	shop_main = calloc(AMOUNT_SHOPS, sizeof(struct trade));
         if(NULL == shop_main)
                 perror("error_calloc_shop");
@@ -82,20 +83,23 @@ int main(void){
 	refiller_main->infoshop = &shop_main;
 	/*создадим потоки*/
 
-	s = pthread_create(&tid_refiller, NULL, &refill, &refiller_main);
+	s = pthread_create(&tid_refiller, NULL, &refill, refiller_main);
 	if(0 != s)
 		perror_arg(s, "error_create_refiller");
 	for(int nBuyer = 0; nBuyer < AMOUNT_BUYER; nBuyer++){
 		buyer_main[nBuyer].infoshop = &shop_main;
 		buyer_main[nBuyer].needBuy = 10000;
 		buyer_main[nBuyer].current_product = 0;	
+		buyer_main[nBuyer].number_buyer = nBuyer;
+
 		
-		s = pthread_create(&tid_byer[nBuyer], NULL, &buy_product, &buyer_main);
+		s = pthread_create(&tid_byer[nBuyer], NULL, &buy_product, &buyer_main[nBuyer]);
 		if(0 != s)
 			perror_arg(s, "error_pthread_create_buyer");
 	}
 
 	s = pthread_join(tid_refiller, &res);
+//	s = pthread_detach(tid_refiller);
 	if(0 != s)
 		perror_arg(s, "join_reffiler");
 	free(res);
@@ -105,9 +109,17 @@ int main(void){
 	                perror_arg(s, "join_buyer");
 		free(res);
 	}
+
+	s = pthread_detach(tid_refiller);
 	
+
+	for(int nBuyer = 0; nBuyer < AMOUNT_BUYER; nBuyer++){
+		printf("в магазине %d осталось продуктов %d", nBuyer, shop_main[nShop].goods);
+	}
+
 	free(buyer_main);
 	free(refiller_main);
+	free(shop_main);
 
 	pthread_mutex_destroy(&mutex1);
 	pthread_mutex_destroy(&mutex2);
@@ -127,19 +139,23 @@ void *buy_product(void *arg){
 	struct trade **info = dai -> infoshop;
 	
 	int nShop;
-
+	int numb;
+		
 	pthread_mutex_t mutexs[5] = {mutex1, mutex2, mutex3, mutex4, mutex5};	
 
-	while((dai -> needBuy) < (dai -> current_product)){
+	while((dai -> needBuy) > (dai -> current_product)){
 		for(nShop = 0; nShop < AMOUNT_SHOPS; nShop++){
 			if(0 < ((*info)[nShop].goods)){
 				
 				pthread_mutex_trylock(&mutexs[nShop]);
         	               		dai->current_product += (*info)[nShop].goods;
+					printf("-из магазина %d было взято %d продуктов\nу покупателя %d %d продуктов\n", nShop, (*info)[nShop].goods, dai-> number_buyer,dai->current_product);
 					(*info)[nShop].goods = 0;
+					printf("Засыпаю на две секунды\n");
+					sleep(2);
+					printf("Проснулся после взятия из магазина %d\n", nShop);
 	        	        pthread_mutex_unlock(&mutexs[nShop]);
-				sleep(2);
-			}
+			} else {printf("-В магазине %d ничего нет - говорит покупатель %d\n", nShop, dai-> number_buyer);}
 		}
 
 	}
@@ -153,18 +169,23 @@ void *refill(void *arg){
 	struct trade **info = get -> infoshop;
 	pthread_mutex_t mutexs[5] = {mutex1, mutex2, mutex3, mutex4, mutex5};
 	int nShop;
-	
-	while(1)
+	int nado = 0;
+
+	while( nado < 500 )
 	{ 
 		for(nShop = 0; nShop < AMOUNT_SHOPS; nShop++)
 		{
 			if(0 == ((*info)[nShop].goods)){
 				pthread_mutex_trylock(&mutexs[nShop]);
        		                 	(*info)[nShop].goods += 1000;
-					printf("В магазин %d было добавлено 1000\n", nShop);
+					printf("-В магазин %d было добавлено 1000\nа осталось %d\n", nShop, (*info)[nShop].goods);
+					printf("Засыпаю на 1 секуду\n");
+					sleep(1);
+					printf("Проснулся после добавления в магазин %d\n", nShop);
        	                	pthread_mutex_unlock(&mutexs[nShop]);
-			}
+			} 
 		}
+//		printf("четчик равен = %d", nado);
 	}
 	return 0;
 }
