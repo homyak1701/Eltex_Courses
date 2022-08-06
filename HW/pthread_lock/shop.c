@@ -2,6 +2,7 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <unistd.h>
 #include <string.h>
 
 #define AMOUNT_SHOPS 5
@@ -13,7 +14,13 @@
 #define perror(mes) do{ perror(mes); exit(EXIT_FAILURE);} while(0);
 #define perror_arg(arg, mes) do{errno = arg; perror(mes); exit(EXIT_FAILURE);} while(0)
 
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex3 = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex4 = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t mutex5 = PTHREAD_MUTEX_INITIALIZER;
+
+//pthread_mutex_t mutexs[5] = {mutex1, mutex2, mutex3, mutex4, mutex5};
 
 struct trade{
         int goods;
@@ -50,7 +57,7 @@ int main(void){
 	struct buyer *buyer_main; /*создаем указатели на структуры или объекты 
 					с которыми будем работать*/
 	struct refiller *refiller_main;
-	struct trade *shop_main; 
+	struct trade *shop_main; /*объект магазины*/
 
 	
 
@@ -102,7 +109,11 @@ int main(void){
 	free(buyer_main);
 	free(refiller_main);
 
-	pthread_mutex_destroy(&mutex);
+	pthread_mutex_destroy(&mutex1);
+	pthread_mutex_destroy(&mutex2);
+	pthread_mutex_destroy(&mutex3);
+	pthread_mutex_destroy(&mutex4);
+	pthread_mutex_destroy(&mutex5);
 
 	exit(EXIT_SUCCESS);
 }
@@ -117,14 +128,16 @@ void *buy_product(void *arg){
 	
 	int nShop;
 
+	pthread_mutex_t mutexs[5] = {mutex1, mutex2, mutex3, mutex4, mutex5};	
+
 	while((dai -> needBuy) < (dai -> current_product)){
 		for(nShop = 0; nShop < AMOUNT_SHOPS; nShop++){
 			if(0 < ((*info)[nShop].goods)){
 				
-				pthread_mutex_trylock(&mutex);
+				pthread_mutex_trylock(&mutexs[nShop]);
         	               		dai->current_product += (*info)[nShop].goods;
 					(*info)[nShop].goods = 0;
-	        	        pthread_mutex_unlock(&mutex);
+	        	        pthread_mutex_unlock(&mutexs[nShop]);
 				sleep(2);
 			}
 		}
@@ -136,14 +149,23 @@ void *buy_product(void *arg){
 
 void *refill(void *arg){
 
-	struct filler *get = arg;
+	struct refiller *get = arg;
 	struct trade **info = get -> infoshop;
-
+	pthread_mutex_t mutexs[5] = {mutex1, mutex2, mutex3, mutex4, mutex5};
 	int nShop;
 	
-	for(nShop = 0; nShop < AMOUNT_SHOPS; nShop++)
-		if(0 == ((*info)[nShop].goods)){
-			
+	while(1)
+	{ 
+		for(nShop = 0; nShop < AMOUNT_SHOPS; nShop++)
+		{
+			if(0 == ((*info)[nShop].goods)){
+				pthread_mutex_trylock(&mutexs[nShop]);
+       		                 	(*info)[nShop].goods += 1000;
+					printf("В магазин %d было добавлено 1000\n", nShop);
+       	                	pthread_mutex_unlock(&mutexs[nShop]);
+			}
 		}
+	}
 	return 0;
 }
+
