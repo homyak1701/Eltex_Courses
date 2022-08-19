@@ -132,26 +132,29 @@ int main (int argc, char **argV)
 {
 	system("clear");
 
-	pid_t childPid = 0;
+	pid_t childPid = 0;/*переменная для разделения родительского и дочернего процессов*/
 	pid_t w;
 	int nArgc = 0;
-    int i = -1, point = 0;
+    int point1 = 0, point2 = 1; /*перечисление процессов для каналов для родителя и потомка*/
+	int amount_bytes = 0;/*количетсво байт, которые будут записываться в */
 	int errorExecv;
 	int status; /*для wait*/
-    int fildes[2]; /*создание массива для хранения массива дескриптора канала*/
+    int read_child[2], write_child[2]; /*создание массива для хранения массива дескриптора канала*/
 	char **str_process = NULL;
-	 char **tokens = NULL;
-	char *string_comands = NULL;
-		
+	char **tokens = NULL;
+	char *string_comands = NULL; /*переменная для чтения из стандартного потока ввода и из буфера канала*/
+	char *string_comands2 = (char *)malloc(sizeof(char *) * 30);
+
 	printf("\nEnter your comanl --> ");
 	string_comands = readline();
 		
-	str_process = split(string_comands);
+	str_process = split_str(string_comands);
 
-        if(-1 == (pipe(fildes))){
+        if(-1 == (pipe(read_child)) || -1 == (pipe(write_child))){
             perror("pipe_create");
             exit(EXIT_FAILURE);
         }
+
 
 		childPid = fork();
 		if(-1 == childPid){
@@ -159,29 +162,50 @@ int main (int argc, char **argV)
 			exit(EXIT_FAILURE);
 		}
 
-        while(0 != str_process){
+        while(0 != str_process[point1]){
             if(0 == childPid){  /*дочерний процесс*/
-                close(fildes[1]);
-                //dup2(fildes[0], 0);
-               // errorExecv = execvp(tokens[0], tokens); /*начинаем выолняем команду после |*/
-               /* if (errorExecv < 0){
-                        perror("Error");
-                        exit(EXIT_FAILURE);
-                    }*/
-                } else { /*родительский процесс*/
-                    close(fildes[0]);
-                    //dup2(fildes[1], 1);/*перенаправляем стандартный вывод в буфер канала*/
-                    /*while((0 != strcmp(tokens[point], "|")) && (NULL != tokens[point+1])){ //считаем сколько аргументов до |
-						point++;
-                    }*/
-                    //execvp(tokens,tokens[0]); /*выполняем программу*/
+                close(read_child[1]);
+				close(write_child[0]);
 
-                    w = wait(&status); /*ждем пока выполнится дочерний процесс*/
-                    if(-1 == w){
-                        perror("error childPid");
-                        exit(EXIT_FAILURE);
-                    }
+                dup2(read_child[0], STDIN_FILENO);
+				dup2(write_child[1], STDOUT_FILENO);
+
+				if(amount_bytes < 0){
+                    perror("Error_amount_bytes");
+                	exit(EXIT_FAILURE);					
+				}
+
+				tokens = split_tokens(str_process[point2]);
+				point2 = point2 + 2;
+               	errorExecv = execvp(tokens[0], tokens); /*начинаем выолняем команду после |*/
+               	if (errorExecv < 0){
+                    perror("Error");
+                	exit(EXIT_FAILURE);
                 }
+            } else { /*родительский процесс*/
+                close(read_child[0]);
+                close(write_child[1]);
+
+				dup2(read_child[1], STDOUT_FILENO);/*перенаправляем стандартный вывод в буфер канала*/
+				dup2(write_child[0], 0);
+
+				if(NULL != str_process[point1+1]){	
+					tokens = split_tokens(str_process[point1]); /*выделяем токены первого процесса*/
+					point1 = point1 + 2; /*перескакиваем через один, так как родительский процесс 
+											будет выполнять именно этот процесс*/
+                	execvp(tokens[0],tokens); /*выполняем первый процесс до разделителя | */
+					w = wait(&status); /*ждем пока выполнится дочерний процесс*/
+                	if(-1 == w){
+                    	perror("error childPid");
+                    	exit(EXIT_FAILURE);
+					}
+				} else {
+					close(read_child[1]);
+					tokens = split_tokens(str_process[point1]);
+					execvp(tokens[0],tokens);
+					close(write_child[0]);
+				}
+            }
         }
 		free(str_process);
 		free(tokens);	
