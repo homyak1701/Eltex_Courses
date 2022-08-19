@@ -21,9 +21,9 @@ char *readline();
 char **split_str(char* line);
 char **split_tokens(char *str_process);
 
-/*		    */
+/*		    		*/
 /*реализация функций*/
-/*		    */
+/*		    		*/
 
 /*фнукция считывания строки из стандартного потока ввода*/
 
@@ -140,21 +140,25 @@ int main (int argc, char **argV)
 	int errorExecv;
 	int status; /*для wait*/
     int read_child[2], write_child[2]; /*создание массива для хранения массива дескриптора канала*/
+	int fd_back_child[2], fd_back_parent[2];
 	char **str_process = NULL;
 	char **tokens = NULL;
 	char *string_comands = NULL; /*переменная для чтения из стандартного потока ввода и из буфера канала*/
-	char *string_comands2 = (char *)malloc(sizeof(char *) * 30);
 
 	printf("\nEnter your comanl --> ");
 	string_comands = readline();
 		
 	str_process = split_str(string_comands);
 
-        if(-1 == (pipe(read_child)) || -1 == (pipe(write_child))){
+        if(-1 == (pipe(read_child))){
             perror("pipe_create");
             exit(EXIT_FAILURE);
         }
 
+		if(-1 == pipe(write_child)){
+			perror("pipe_create");
+			exit(EXIT_FAILURE);
+		}
 
 		childPid = fork();
 		if(-1 == childPid){
@@ -162,51 +166,108 @@ int main (int argc, char **argV)
 			exit(EXIT_FAILURE);
 		}
 
-        while(0 != str_process[point1]){
+
             if(0 == childPid){  /*дочерний процесс*/
-                close(read_child[1]);
+				close(read_child[1]); /*закрываем ненужные дескрипторы канала*/
 				close(write_child[0]);
 
-                dup2(read_child[0], STDIN_FILENO);
+				fd_back_child[0] = dup(STDIN_FILENO); /*дескрипторы стандартногоптока записываем*/
+				fd_back_child[1] = dup(STDOUT_FILENO); /*чтобы в конце дескрипторы вернуть назад*/
+
+				dup2(read_child[0], STDIN_FILENO); /*перенапрвляем дескрипторы на буфер канала*/
 				dup2(write_child[1], STDOUT_FILENO);
 
-				if(amount_bytes < 0){
-                    perror("Error_amount_bytes");
-                	exit(EXIT_FAILURE);					
+				while(0 != str_process[point2]){ /*дочерний процесс будет чуществовать
+													пока не закончатся выбранные процессы пользователем*/
+													
+					tokens = split_tokens(str_process[point2]);
+					if(0 != str_process[point2 + 1]){
+						point2 = point2 + 2;
+					} else {
+						close(write_child[1]);
+						write_child[1] = -1;
+						dup2(fd_back_child[1], STDOUT_FILENO);
+					}
+					
+					errorExecv = execvp(tokens[0], tokens); /*начинаем выолняем команду после |*/
+					if (errorExecv < 0){
+						perror("Error");
+						exit(EXIT_FAILURE);
+					}
 				}
+				
+				if (0 > close(read_child[0])){
+						perror("Error_close_read_child[0]");
+						exit(EXIT_FAILURE);
+				}
+				if(write_child[1] > 0){
+					if (0 > close(write_child[1])){
+							perror("Error_close_read_child[1]");
+							exit(EXIT_FAILURE);
+					}
+				}
+				dup2(fd_back_child[0], STDIN_FILENO);
+				dup2(fd_back_child[1], STDOUT_FILENO);
 
-				tokens = split_tokens(str_process[point2]);
-				point2 = point2 + 2;
-               	errorExecv = execvp(tokens[0], tokens); /*начинаем выолняем команду после |*/
-               	if (errorExecv < 0){
-                    perror("Error");
-                	exit(EXIT_FAILURE);
-                }
+				close(fd_back_child[0]);
+				close(fd_back_child[1]);
+				
             } else { /*родительский процесс*/
                 close(read_child[0]);
                 close(write_child[1]);
 
-				dup2(read_child[1], STDOUT_FILENO);/*перенаправляем стандартный вывод в буфер канала*/
-				dup2(write_child[0], 0);
+				fd_back_parent[0] = dup(STDIN_FILENO);
+				fd_back_parent[1] = dup(STDOUT_FILENO);
 
-				if(NULL != str_process[point1+1]){	
+				dup2(read_child[1], STDOUT_FILENO);/*перенаправляем стандартный вывод в буфер канала*/
+				dup2(write_child[0], STDIN_FILENO);
+
+				while(0 != str_process[point1 + 1]){
+	
 					tokens = split_tokens(str_process[point1]); /*выделяем токены первого процесса*/
-					point1 = point1 + 2; /*перескакиваем через один, так как родительский процесс 
-											будет выполнять именно этот процесс*/
-                	execvp(tokens[0],tokens); /*выполняем первый процесс до разделителя | */
-					w = wait(&status); /*ждем пока выполнится дочерний процесс*/
-                	if(-1 == w){
-                    	perror("error childPid");
-                    	exit(EXIT_FAILURE);
+					point1 = point1 + 2; /*перескакиваем через один, то есть следующий процесс 
+											родителя*/
+					execvp(tokens[0],tokens); /*выполняем первый процесс до разделителя | */
+					w = wait(&status); //ждем пока выполнится дочерний процесс
+					if(-1 == w){
+						perror("error childPid");
+						exit(EXIT_FAILURE);
 					}
-				} else {
-					close(read_child[1]);
-					tokens = split_tokens(str_process[point1]);
-					execvp(tokens[0],tokens);
-					close(write_child[0]);
 				}
-            }
-        }
+				
+				if(0 != str_process[point1]){
+					if (-1 == close(read_child[1])){
+							perror("Error_close_write_child[1]");
+							exit(EXIT_FAILURE);
+					} 
+					dup2(fd_back_parent[1], STDOUT_FILENO); /*в конце перенаправляем вывод на экран*/
+					tokens = split_tokens(str_process[point1]);
+					
+					execvp(tokens[0],tokens);
+
+					if (-1 == close(write_child[0])){
+							perror("Error_close_write_child[0]");
+							exit(EXIT_FAILURE);
+					}
+					dup2(fd_back_parent[0], STDIN_FILENO);
+					
+          		} else {
+					if (-1 == close(write_child[0])){
+							perror("Error_close_write_child[0]");
+							exit(EXIT_FAILURE);
+					}
+					if (-1 == close(read_child[1])){
+							perror("Error_close_write_child[1]");
+							exit(EXIT_FAILURE);
+					}
+					
+					dup2(fd_back_parent[1], STDOUT_FILENO);
+					dup2(fd_back_parent[0], STDIN_FILENO);
+
+				}
+				close(fd_back_parent[1]);
+				close(fd_back_parent[0]);
+        	}
 		free(str_process);
 		free(tokens);	
 	return 0;
