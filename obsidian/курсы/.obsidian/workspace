@@ -1,0 +1,141 @@
+{
+  "main": {
+    "id": "16f53e7df79e5aa7",
+    "type": "split",
+    "children": [
+      {
+        "id": "3c3fe85ac2c3c464",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "1.1.sigaction().md",
+            "mode": "preview",
+            "source": false
+          }
+        }
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "a09ac06029b7e502",
+    "type": "split",
+    "children": [
+      {
+        "id": "4f8cf58e46eea371",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "9b8298afb2dcf789",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {}
+            }
+          },
+          {
+            "id": "5c845b9767c61af1",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "63df5ca5e278e593",
+            "type": "leaf",
+            "state": {
+              "type": "starred",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "right": {
+    "id": "36105964a8f264c3",
+    "type": "split",
+    "children": [
+      {
+        "id": "56117980e99673ae",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "aa669c2066a56546",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "1.1.sigaction().md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "03db591503a6ca8c",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "1.1.sigaction().md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "26b7c61ba442237f",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "daa0ef3163161876",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "1.1.sigaction().md"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "active": "3c3fe85ac2c3c464",
+  "lastOpenFiles": [
+    "1. как выглядит сигнал.md",
+    "1.9. sigsuspend().md",
+    "1.8. pause().md",
+    "1.2. signal().md",
+    "1.1.sigaction().md",
+    "1.4. kill().md"
+  ]
+}
