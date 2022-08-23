@@ -1,0 +1,26 @@
+{
+  "outputFileName": "unlinked files output",
+  "disableWorkingLinks": true,
+  "directoriesToIgnore": [],
+  "filesToIgnore": [
+    "md"
+  ],
+  "fileTypesToIgnore": [],
+  "linksToIgnore": [],
+  "tagsToIgnore": [],
+  "fileTypesToDelete": [
+    "jpg",
+    "png"
+  ],
+  "ignoreFileTypes": true,
+  "ignoreDirectories": true,
+  "unresolvedLinksOutputFileName": "unresolved links output",
+  "unresolvedLinksDirectoriesToIgnore": [],
+  "unresolvedLinksFilesToIgnore": [],
+  "unresolvedLinksFileTypesToIgnore": [],
+  "unresolvedLinksLinksToIgnore": [],
+  "unresolvedLinksTagsToIgnore": [],
+  "withoutTagsDirectoriesToIgnore": [],
+  "withoutTagsFilesToIgnore": [],
+  "withoutTagsOutputFileName": "files without tags"
+}
