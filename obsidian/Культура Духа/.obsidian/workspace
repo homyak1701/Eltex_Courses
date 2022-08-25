@@ -10,7 +10,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Base/6.3.4.3. очередь сообщения.md",
+            "file": "Base/6.3.4. управление памятью - ipc.md",
             "mode": "source",
             "source": false
           }
@@ -99,7 +99,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Base/6.3.4.3. очередь сообщения.md",
+                "file": "Base/6.3.4. управление памятью - ipc.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -143,7 +143,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Base/6.3.4.3. очередь сообщения.md"
+                "file": "Base/6.3.4. управление памятью - ipc.md"
               }
             }
           }
@@ -155,15 +155,15 @@
   },
   "active": "cd9daf08091382fd",
   "lastOpenFiles": [
-    "Base/6.3.4.3.5. mq_open().md",
     "Base/6.3.4.3. очередь сообщения.md",
+    "6.3.4.3.8. mq_send() / mq_receive().md",
+    "Base/6.3.4.3.5. mq_open().md",
     "Base/6.3.4.3.3. msgrcv().md",
     "Base/6.3.4.3.2. msgget().md",
     "6.3.4.3.3. msgsnd() /msgrcv().md",
     "Base/6.3.4.3.4. msgctl().md",
     "Base/6.3.4.3.1. ftok().md",
     "Base/6.3.4. управление памятью - ipc.md",
-    "Base/6.3.4.1. сигналы ipc.md",
-    "Base/6.3.4.1.9. sigsuspend().md"
+    "Base/6.3.4.1. сигналы ipc.md"
   ]
 }
