@@ -9,8 +9,8 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "1.1.sigaction().md",
-            "mode": "preview",
+            "file": "1.9. sigsuspend().md",
+            "mode": "source",
             "source": false
           }
         }
@@ -61,8 +61,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "36105964a8f264c3",
@@ -78,7 +77,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "1.1.sigaction().md",
+                "file": "1.9. sigsuspend().md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -95,7 +94,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "1.1.sigaction().md",
+                "file": "1.9. sigsuspend().md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -118,7 +117,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "1.1.sigaction().md"
+                "file": "1.9. sigsuspend().md"
               }
             }
           }
@@ -132,10 +131,10 @@
   "active": "3c3fe85ac2c3c464",
   "lastOpenFiles": [
     "1. как выглядит сигнал.md",
-    "1.9. sigsuspend().md",
     "1.8. pause().md",
-    "1.2. signal().md",
+    "1.4. kill().md",
     "1.1.sigaction().md",
-    "1.4. kill().md"
+    "1.9. sigsuspend().md",
+    "1.2. signal().md"
   ]
 }

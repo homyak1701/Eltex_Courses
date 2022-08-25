@@ -6,11 +6,25 @@
       {
         "id": "cd9daf08091382fd",
         "type": "leaf",
+        "dimension": 81.17738187451587,
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Base/6.4.6.2. команды -- файловый ввод, вывод.md",
-            "mode": "preview",
+            "file": "Base/6.3.4.3. очередь сообщения.md",
+            "mode": "source",
+            "source": false
+          }
+        }
+      },
+      {
+        "id": "e981c60a608e5db2",
+        "type": "leaf",
+        "dimension": 18.82261812548412,
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "Base/Базовые концепции/Концепты.md",
+            "mode": "source",
             "source": false
           }
         }
@@ -69,7 +83,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 256.5
+    "width": 242.5
   },
   "right": {
     "id": "dd2a3c2168e0dbf2",
@@ -85,7 +99,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Base/6.4.6.2. команды -- файловый ввод, вывод.md",
+                "file": "Base/6.3.4.3. очередь сообщения.md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -129,7 +143,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Base/6.4.6.2. команды -- файловый ввод, вывод.md"
+                "file": "Base/6.3.4.3. очередь сообщения.md"
               }
             }
           }
@@ -139,17 +153,17 @@
     "direction": "horizontal",
     "width": 254.5
   },
-  "active": "97aca2a2b2b5f61d",
+  "active": "cd9daf08091382fd",
   "lastOpenFiles": [
-    "Base/6.3.4.2.2. dup() - dup2().md",
-    "Base/6.3.5.2. функции по работе с процессами.md",
-    "Base/6.4.6.2. команды -- файловый ввод, вывод.md",
-    "Base/6.3.4.2. каналы в linux.md",
+    "Base/6.3.4.3.5. mq_open().md",
+    "Base/6.3.4.3. очередь сообщения.md",
+    "Base/6.3.4.3.3. msgrcv().md",
+    "Base/6.3.4.3.2. msgget().md",
+    "6.3.4.3.3. msgsnd() /msgrcv().md",
+    "Base/6.3.4.3.4. msgctl().md",
+    "Base/6.3.4.3.1. ftok().md",
     "Base/6.3.4. управление памятью - ipc.md",
-    "Base/6.4.6.5. команды -- буферизированный ввод, вывод.md",
-    "Base/6.2.4. окружение в linux.md",
-    "Base/6.3. концепции системного программирования.md",
-    "Base/6.3.5. управление процессами, потоками (linux).md",
-    "Base/6. Linux.md"
+    "Base/6.3.4.1. сигналы ipc.md",
+    "Base/6.3.4.1.9. sigsuspend().md"
   ]
 }
