@@ -6,12 +6,12 @@
       {
         "id": "cd9daf08091382fd",
         "type": "leaf",
-        "dimension": 81.17738187451587,
+        "dimension": 77.53679318357862,
         "state": {
           "type": "markdown",
           "state": {
-            "file": "Base/6.3.4. управление памятью - ipc.md",
-            "mode": "source",
+            "file": "Base/6.3.4.3.2. msgget().md",
+            "mode": "preview",
             "source": false
           }
         }
@@ -19,7 +19,7 @@
       {
         "id": "e981c60a608e5db2",
         "type": "leaf",
-        "dimension": 18.82261812548412,
+        "dimension": 22.46320681642138,
         "state": {
           "type": "markdown",
           "state": {
@@ -54,7 +54,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "close",
+                "query": "open()",
                 "matchingCase": true,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -79,7 +79,8 @@
               "state": {}
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -99,7 +100,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Base/6.3.4. управление памятью - ipc.md",
+                "file": "Base/6.3.4.3.2. msgget().md",
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -143,7 +144,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Base/6.3.4. управление памятью - ipc.md"
+                "file": "Base/6.3.4.3.2. msgget().md"
               }
             }
           }
@@ -156,14 +157,14 @@
   "active": "cd9daf08091382fd",
   "lastOpenFiles": [
     "Base/6.3.4.3. очередь сообщения.md",
-    "6.3.4.3.8. mq_send() / mq_receive().md",
-    "Base/6.3.4.3.5. mq_open().md",
-    "Base/6.3.4.3.3. msgrcv().md",
     "Base/6.3.4.3.2. msgget().md",
-    "6.3.4.3.3. msgsnd() /msgrcv().md",
-    "Base/6.3.4.3.4. msgctl().md",
+    "Base/6.4.6.2. команды -- файловый ввод, вывод.md",
     "Base/6.3.4.3.1. ftok().md",
+    "Base/6.2.2.4.  межпроцессорное взаимодейтсвие IPC.md",
+    "Base/6.2.2. процессы в linux.md",
+    "Base/6.3.4.2. каналы в linux.md",
     "Base/6.3.4. управление памятью - ipc.md",
-    "Base/6.3.4.1. сигналы ipc.md"
+    "Base/6.3.4.1. сигналы ipc.md",
+    "Base/6.2. парадигма linux.md"
   ]
 }
