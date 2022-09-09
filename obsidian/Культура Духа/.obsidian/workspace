@@ -10,8 +10,13 @@
         "state": {
           "type": "markdown",
           "state": {
+<<<<<<< HEAD
             "file": "Base/4.2.10. typedef.md",
             "mode": "source",
+=======
+            "file": "Base/6.3.4.3. очередь сообщения.md",
+            "mode": "preview",
+>>>>>>> cfb95313f528f06dd17be261c3329845c60f55bf
             "source": false
           }
         }
@@ -54,7 +59,11 @@
             "state": {
               "type": "search",
               "state": {
+<<<<<<< HEAD
                 "query": "typedef",
+=======
+                "query": "разделяемая память",
+>>>>>>> cfb95313f528f06dd17be261c3329845c60f55bf
                 "matchingCase": true,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -100,7 +109,11 @@
             "state": {
               "type": "backlink",
               "state": {
+<<<<<<< HEAD
                 "file": "Base/4.2.10. typedef.md",
+=======
+                "file": "Base/6.3.4.3. очередь сообщения.md",
+>>>>>>> cfb95313f528f06dd17be261c3329845c60f55bf
                 "collapseAll": true,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -144,7 +157,11 @@
             "state": {
               "type": "outline",
               "state": {
+<<<<<<< HEAD
                 "file": "Base/4.2.10. typedef.md"
+=======
+                "file": "Base/6.3.4.3. очередь сообщения.md"
+>>>>>>> cfb95313f528f06dd17be261c3329845c60f55bf
               }
             }
           }
@@ -154,8 +171,9 @@
     "direction": "horizontal",
     "width": 254.5
   },
-  "active": "cd9daf08091382fd",
+  "active": "f2f3b92bbd3eb40b",
   "lastOpenFiles": [
+<<<<<<< HEAD
     "Base/7.2.1. ssh - генерация ключа.md",
     "Base/7. GitHub.md",
     "Base/7.2. команды работы с git.md",
@@ -165,6 +183,17 @@
     "Base/Базовые концепции/Концепты.md",
     "Base/4.3.4. управление динамической памятью.md",
     "Base/6.2.2.4.  межпроцессорное взаимодейтсвие IPC.md",
+=======
+    "Base/6.3.4. управление памятью - ipc.md",
+    "Base/6.3. концепции системного программирования.md",
+    "Base/6.3.4.3. очередь сообщения.md",
+    "Base/6.2.2.4.  межпроцессорное взаимодейтсвие IPC.md",
+    "Base/6.3.4.3.3. msgrcv().md",
+    "Base/6.3.4.3.2. msgget().md",
+    "Base/6.4.6.2. команды -- файловый ввод, вывод.md",
+    "Base/6.3.4.3.1. ftok().md",
+    "Base/6.2.2. процессы в linux.md",
+>>>>>>> cfb95313f528f06dd17be261c3329845c60f55bf
     "Base/6.3.4.2. каналы в linux.md"
   ]
 }

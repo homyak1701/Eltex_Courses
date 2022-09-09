@@ -9,7 +9,7 @@
         "state": {
           "type": "markdown",
           "state": {
-            "file": "1.9. sigsuspend().md",
+            "file": "2.2. ftruncarte-f.md",
             "mode": "source",
             "source": false
           }
@@ -77,7 +77,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "1.9. sigsuspend().md",
+                "file": "2.2. ftruncarte-f.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -94,7 +94,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "1.9. sigsuspend().md",
+                "file": "2.2. ftruncarte-f.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -117,7 +117,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "1.9. sigsuspend().md"
+                "file": "2.2. ftruncarte-f.md"
               }
             }
           }
@@ -125,16 +125,17 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "active": "3c3fe85ac2c3c464",
   "lastOpenFiles": [
+    "2. разделяемая память.md",
+    "2.1. mmap-f.md",
+    "1.9. sigsuspend().md",
     "1. как выглядит сигнал.md",
     "1.8. pause().md",
     "1.4. kill().md",
     "1.1.sigaction().md",
-    "1.9. sigsuspend().md",
     "1.2. signal().md"
   ]
 }
