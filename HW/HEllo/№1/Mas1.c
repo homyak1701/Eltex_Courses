@@ -4,7 +4,10 @@ int main(void)
 {
 	int age = 0;
 	int schet = 1;
+	printf("-----> ppp = %d\n", *stdin);
+	
 
+	/*
 	printf("Input your size:");
 	scanf("%d", &age);
 	int matrx[age][age];
@@ -24,5 +27,6 @@ int main(void)
 			schet++;
 		}
 	}
+	*/
 	return 0;
 }

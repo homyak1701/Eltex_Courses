@@ -114,7 +114,7 @@ int main (int argc, char **argV)
 			perror("Error fork()");
 			exit(EXIT_FAILURE);
 		}
-		
+		/*проверяем есть ли второй аргумент и если он есть выполняем процесс с аргументом*/
 		if(NULL != tokens[1]){
 			if(0 == childPid){
 				errorExecv = execlp(tokens[0],tokens[0], tokens[1], NULL);
@@ -129,7 +129,7 @@ int main (int argc, char **argV)
 					exit(EXIT_FAILURE);
 				}
 			}
-		} else{
+		} else{ /*если нет аргумента просто выполняем процесс*/
 			if(0 == childPid){
                                 errorExecv = execlp(tokens[0],tokens[0], NULL);
                                 if (errorExecv < 0){
