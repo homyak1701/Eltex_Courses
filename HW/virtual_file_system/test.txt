@@ -1,1 +1,0 @@
-The  open()  system  call opens the file specified by pathname
