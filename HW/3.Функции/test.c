@@ -29,3 +29,5 @@ int IsPassOk(void)
 
 	return 0 == strcmp(Pass, "test");
 }
+
+
