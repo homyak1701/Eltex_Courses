@@ -6,10 +6,10 @@
 #define N 10
 //макрос по нахождению ошибки при выделении памяти
 #define error_memory(a) do{if(NULL == a){  printf("line:%d\n", __LINE__); \
-                                         perror("memory"); exit(EXIT_FAILURE);}} while(0)
+                                        perror("memory"); exit(EXIT_FAILURE);}} while(0)
 
 
-enum chose_users {
+enum chose_users{
                     NEW_USER = 1,
                     SEARCH_USER,
                     LIST_USERS,
@@ -26,12 +26,11 @@ struct subscribers{
 int main(){
 
     //- указатель на всю область справочника;
-    struct subscribers *point_list = (struct subscribers *)malloc(sizeof(struct subscribers));
+    struct subscribers *point_list = (struct subscribers *)malloc(sizeof(struct subscribers) * 100);
         error_memory(point_list);
     //- указатель, который будет содержать ссылку только на одного
     //пользователя
     struct subscribers *point_user = NULL;
-    //struct subscribers point_users[N];
 
     //- переменная куда бедет записыватся выбор пользователя;
     enum chose_users scanf_for_switch;
@@ -45,8 +44,7 @@ int main(){
     //- количетсво зарегистрированных записей
     int amount = 0;
 
-    //memset(point_list, 0, sizeof(struct subscribers));
-    //memset(search_user, 0, 50);
+    memset(search_user, 0, 50);
 
     printf("*****\n");
     printf("Hello!\n");
@@ -65,7 +63,9 @@ int main(){
             case NEW_USER:
                 //- сдвигаем указатель пользователя на нужную
                 //область структуры;
-                point_user = point_list + amount;
+                point_user = point_list;
+                point_user = point_user + amount;
+                memset(point_user, 0, sizeof(struct subscribers));
                 printf("Впишите данные пользователя\n");
                 printf("Имя: "); 
                 scanf("%s", point_user->first_name);
@@ -76,7 +76,7 @@ int main(){
                 printf("\n");
                 //- увеличиваем справочник на одного пользователя
                 //чтобы в дальнейшем было место, куда записывать
-                point_list = (struct subscribers *)realloc(point_list, sizeof(struct subscribers) * 2);
+                point_list = (struct subscribers *)realloc(point_list, sizeof(struct subscribers));
                         error_memory(point_list);
                 amount++;
                 break;                     
@@ -117,26 +117,24 @@ int main(){
             case DEL_USER:
                 printf("\nВведите имя пользователя, которого хотите удалить:");
                 scanf("%s", search_user);
-                point_user = point_list;
-                for(i=0; i < amount; i++){
-                    cmpr_string = strcmp(search_user,point_user->first_name);
-                    if(0 == cmpr_string){
-                        for(i; i<amount; i++){
-                            point_user->first_name = (point_user+1)->first_name;
-                        }
-                        //free(point_list+amount);
-                        amount--;
-                        printf("\n!!!\nПользователь удален\n!!!\n");
-                        break;
-                    }
-                    if(N-1 == i){
-                        printf("Такого пользователя нет\nНичего не удалилось\n");
-                        break;
-                    }
-                }
+                // point_user = point_list;
+                // for(i=0; i < amount; i++){
+                //     cmpr_string = strcmp(search_user,point_user->first_name);
+                //     if(0 == cmpr_string){
+                //         for(i; i<amount; i++){
+                //             point_user->first_name = (point_user+1)->first_name;
+                //         }
+                //         amount--;
+                //         printf("\n!!!\nПользователь удален\n!!!\n");
+                //         break;
+                //     }
+                //     if(N-1 == i){
+                //         printf("Такого пользователя нет\nНичего не удалилось\n");
+                //         break;
+                //     }
+                // }
                 break;
             case EXIT:
-                //free(point_user);
                 free(point_list);
                 exit(0);
             default:
