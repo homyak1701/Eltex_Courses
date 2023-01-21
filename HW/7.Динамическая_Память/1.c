@@ -31,6 +31,7 @@ int main(){
     //- указатель, который будет содержать ссылку только на одного
     //пользователя
     struct subscribers *point_user = NULL;
+    struct subscribers *change_users = NULL;
 
     //- переменная куда бедет записыватся выбор пользователя;
     enum chose_users scanf_for_switch;
@@ -76,7 +77,7 @@ int main(){
                 printf("\n");
                 //- увеличиваем справочник на одного пользователя
                 //чтобы в дальнейшем было место, куда записывать
-                point_list = (struct subscribers *)realloc(point_list, sizeof(struct subscribers));
+                point_list = (struct subscribers *)realloc(point_list, sizeof(struct subscribers) * (amount + 2));
                         error_memory(point_list);
                 amount++;
                 break;                     
@@ -96,10 +97,10 @@ int main(){
                         break;
                     }
                     point_user++;
-                }
-                if(amount-1 == i){
-                    printf("Такого пользователя нет\n");
-                    break;
+                    if(i == amount-1){
+                        printf("*****\n");
+                        printf("Такого пользователя нет\n");
+                    }
                 }
                 break;
             case LIST_USERS:
@@ -117,22 +118,33 @@ int main(){
             case DEL_USER:
                 printf("\nВведите имя пользователя, которого хотите удалить:");
                 scanf("%s", search_user);
-                // point_user = point_list;
-                // for(i=0; i < amount; i++){
-                //     cmpr_string = strcmp(search_user,point_user->first_name);
-                //     if(0 == cmpr_string){
-                //         for(i; i<amount; i++){
-                //             point_user->first_name = (point_user+1)->first_name;
-                //         }
-                //         amount--;
-                //         printf("\n!!!\nПользователь удален\n!!!\n");
-                //         break;
-                //     }
-                //     if(N-1 == i){
-                //         printf("Такого пользователя нет\nНичего не удалилось\n");
-                //         break;
-                //     }
-                // }
+                point_user = point_list;
+                //-цикл для поиска абонента из списка
+                for(i=0; i < amount; i++){
+                    cmpr_string = strcmp(search_user,point_user->first_name);
+                    if(0 == cmpr_string){
+                        change_users = point_user + 1;
+                        //- цикл для смещения абонентов к началу, когда нашли 
+                        //нужного абонента для удаления и затерли его
+                        for(i; i < amount; i++){
+                            strcpy(point_user->first_name, change_users->first_name);
+                            strcpy(point_user->second_name, change_users->second_name);
+                            strcpy(point_user->number, change_users->number);
+                            point_user++;
+                            change_users++;
+                        }
+                        amount--;
+                        point_list = (struct subscribers *)realloc(point_list, sizeof(struct subscribers) * (amount + 2));
+                            error_memory(point_list);
+                        printf("\n!!!\nПользователь удален\n!!!\n");
+                        break;
+                    }
+                    if(i == amount-1){
+                        printf("*****\n");
+                        printf("Такого пользователя нет\n");
+                    }
+                    point_user = point_user + 1;
+                }
                 break;
             case EXIT:
                 free(point_list);
