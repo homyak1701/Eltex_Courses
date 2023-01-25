@@ -26,7 +26,7 @@ struct subscribers{
 int main(){
 
     //- указатель на всю область справочника;
-    struct subscribers *point_list = (struct subscribers *)malloc(sizeof(struct subscribers) * 100);
+    struct subscribers *point_list = (struct subscribers *)malloc(sizeof(struct subscribers));
         error_memory(point_list);
     //- указатель, который будет содержать ссылку только на одного
     //пользователя
