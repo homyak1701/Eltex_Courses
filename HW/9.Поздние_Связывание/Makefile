@@ -4,9 +4,6 @@
 bin := temp
 CC:= gcc
 
-#set environment LD_LIBRARY_PATH ./libs/:$LD_LIBRARY_PATH
-#run libs/libdevision.so libs/libminus.so libs/libmult.so libs/libplus.so
-
 run: 
 		LD_LIBRARY_PATH=./libs/:$$LD_LIBRARY_PATH ./temp libs/libdevision.so libs/libminus.so libs/libmult.so libs/libplus.so libs/libtwice.so 
 
