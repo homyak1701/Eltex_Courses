@@ -5,31 +5,16 @@ bin := temp
 CC:= gcc
 
 run: 
-		LD_LIBRARY_PATH=./libs/:$$LD_LIBRARY_PATH ./temp libs/libdevision.so libs/libminus.so libs/libmult.so libs/libplus.so libs/libtwice.so 
+		./temp
 
 temp: main.c
-
-		$(CC) main.c -o $(bin) -Llibs/. -ldevision -lminus -lmult -lplus -g
+		$(CC) main.c -o $(bin) -lncurses -L. -ldop_func -g
 
 dop_libs:
-		 
-		cd libs/ && $(CC) -fPIC devision.c -c
-		cd libs/ && $(CC) -fPIC minus.c -c
-		cd libs/ && $(CC) -fPIC mult.c -c
-		cd libs/ && $(CC) -fPIC plus.c -c
-		cd libs/ && $(CC) -fPIC twice.c -c
-
-		cd libs/ && gcc -shared devision.o -o libdevision.so
-		cd libs/ && gcc -shared minus.o -o libminus.so
-		cd libs/ && gcc -shared mult.o -o libmult.so
-		cd libs/ && gcc -shared plus.o -o libplus.so
-		cd libs/ && gcc -shared twice.o -o libtwice.so
-
-		cd libs/ && rm -rf *.o 
+		gcc dop_func.c -c
+		ar rc libdop_func.a dop_func.o
 
 clean: 
 		rm -rf *.o *.a temp 
-		cd libs/ && rm -rf *.o *.so temp
-		cd ..
 		
 
