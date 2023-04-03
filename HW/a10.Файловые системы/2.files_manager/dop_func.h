@@ -7,6 +7,8 @@
                                        perror("file"); exit(EXIT_FAILURE);}} while(0)
 #define error_stat(a) do{if(a != 0){printf("line:%d\n", __LINE__); \
                                         perror("stat"); exit(EXIT_FAILURE);}} while(0)
+#define error_pwd(a) do{if(NULL == a){printf("line:%d\n", __LINE__); \
+                                        perror("pwd"); exit(EXIT_FAILURE);}} while(0)
 
 //- функция для отображения данных о директории в одном из окон;
 void see_wnd_dir(
@@ -20,14 +22,23 @@ void see_wnd_dir(
             );
 
 //- смещение курсора;
-void put(
+void shift_cursor(
             WINDOW *wnd_names, 
             WINDOW *wnd_sizes, 
             WINDOW *wnd_mod, 
             WINDOW *wnd, 
             int put,
-            struct dirent *namelist,
-            num_files
+            struct dirent **namelist,
+            int num_files
         );
+
+//- покраска области;
+void coloring(
+                WINDOW *wnd_color,
+                int x,
+                int y,
+                struct dirent **namelist,
+                char *input
+            );
 
 #endif
