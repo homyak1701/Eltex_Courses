@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <pthread.h>
 
-#define NUM_THREAD 10
+#define NUM_THREAD 100
 
 long a = 0;
 
@@ -10,7 +10,7 @@ void *thread_start(void *arg){
     int tmp;
 
     for(i = 0; i < 1000000; i++){
-        tmp = a;
+        tmp = a; 
         tmp++;
         a = tmp;
     }

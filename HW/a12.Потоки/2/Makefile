@@ -5,8 +5,7 @@ bin := temp
 CC:= gcc
 
 temp: main.c
-
-		$(CC) main.c -o $(bin) -pthread 
+		gcc main.c -o temp -g -pthread
 
 clean: 
 		rm -rf *.o *.a temp 
