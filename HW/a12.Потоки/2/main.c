@@ -106,8 +106,8 @@ void* buy_product(void* thread_buy){
                     printf("В магазине %d %d продуктов\n", i+1, amount_products_shops[i]);
                     printf("Покупатель %d все забирает\n", buyer_info->id);
                     buyer_info->already_bought += amount_products_shops[i];
-                    amount_products_shops[i] = 0;
                     eshe_buy -= amount_products_shops[i];
+                    amount_products_shops[i] = 0;
                     printf("Покупателю %d осталось еще купить %d продуктов. Теперь он пошел спать\n", buyer_info->id, eshe_buy);
                     printf("\n***\n");
                     sleep(2);
