@@ -1,14 +1,17 @@
 
 .PHONY := clean
 
-bin := temp
+bin1 := client
+bin2 := serv
 CC:= gcc
 
-temp: main.c
+all: gcc
 
-		$(CC) main.c -o $(bin) -g
+gcc:
+		$(CC) client.c -o $(bin1) -g -lncurses
+		$(CC) server.c -o $(bin2) -g -lncurses
 
 clean: 
-		rm -rf *.o *.a temp 
+		rm -rf *.o *.a client serv 
 		
 
