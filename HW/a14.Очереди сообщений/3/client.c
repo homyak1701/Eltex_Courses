@@ -33,7 +33,7 @@ void start_logo(WINDOW *wnd_see_sms, WINDOW *wnd_urers, WINDOW *wnd_send_sms);
 //- структура, которая будет содержать сообщение пользователя и рассылку всем пользователям;
 struct send_and_request{
     long mtype;
-    char sms[28];
+    char sms[50];
     char users[10][20];
     int amount_users; //количетсво пользователей в сети;
     int num_user; //- номер пользователя на сервере;
@@ -119,7 +119,7 @@ int main(void){
 
     //- создаем два окна, как в mc;
     wnd_send_sms = newwin((stdscr->_maxy/10) - 1,(stdscr->_maxx/4) - 3, (stdscr->_maxy/4) + 22, 3);
-    wnd_urers = newwin((stdscr->_maxy/4) - 1,(stdscr->_maxx/6) - 1, 3, (stdscr->_maxx/3) - 10 + 20);
+    wnd_urers = newwin((stdscr->_maxy/4) - 1,(stdscr->_maxx/6) - 1, 3, (stdscr->_maxx/3) - 10 + 20 + 30);
     wnd_see_sms = newwin((stdscr->_maxy/4) + 17, (stdscr->_maxx/4) - 3 + 20, 3, 3);
 
     wattron(wnd_send_sms, COLOR_PAIR(2));
@@ -196,15 +196,67 @@ int main(void){
         error_func(pid);
 
     if(0 == pid){
+
+        //- запоминаем начальные координаты, чтобы двигаться
+        x_sms = 1;
+        y_sms = 4;
+        //- убираем лишнюю информацию в окнах;
+        werase(wnd_urers);
+        werase(wnd_see_sms);
+        start_logo(wnd_see_sms, wnd_urers, wnd_send_sms);
+        wrefresh(wnd_see_sms);
+        //- входим в цикл, когда нам сервер предоставит новые данные, либо отключит от сессии
+        while(1){
+            sleep(1);
+            status_rcv = msgrcv(id_sms, &send_and_request, sizeof(send_and_request) - sizeof(send_and_request.mtype), send_and_request.priority, 0);
+                    error_func(status_rcv);
+                
+            if(-1 == send_and_request.amount_users){
+                break;
+            } else if(4 == send_and_request.type_sms){
+                //- тут обрабатываем окно с пользователями;
+                werase(wnd_urers);
+                start_logo(wnd_see_sms, wnd_urers, wnd_send_sms);
+                for(i = 0; i < send_and_request.amount_users; i++){
+                    wmove(wnd_urers, 4 + i, 1);
+                    wprintw(wnd_urers,"%s", send_and_request.users[i]);
+                    wrefresh(wnd_urers);
+                }
+
+            } else if(5 == send_and_request.type_sms){
+
+                //- тут обрабатываем окно с смс
+                if(MAX_SMS + 4 == y_sms){
+                    werase(wnd_see_sms);
+                    start_logo(wnd_see_sms, wnd_urers, wnd_send_sms);
+                    x_sms = 1;
+                    y_sms = 4;
+                }
+
+                wmove(wnd_see_sms, y_sms, x_sms + 1);
+                wprintw(wnd_see_sms,"%s", send_and_request.sms);
+                wrefresh(wnd_see_sms);
+
+                y_sms++;
+            }    
+
+            wmove(wnd_send_sms, 1, 1);
+            wrefresh(wnd_send_sms);
+
+        }
+
+    } else if(0 < pid) {
+
         send_and_request.mtype = PRIOR_SEND_QUERTY_OR_SMS;
         while(1){
             sleep(1);
             wmove(wnd_send_sms, 1, 1);
-            
+
             //- обработка строки
-            wgetnstr(wnd_send_sms, send_and_request.sms, sizeof(send_and_request.sms));
+            wgetnstr(wnd_send_sms, send_and_request.sms, 28);
             werase(wnd_send_sms);
             start_logo(wnd_see_sms, wnd_urers, wnd_send_sms);
+            wrefresh(wnd_send_sms);
 
             if(0 == strcmp(send_and_request.sms, "exit")){
                 send_and_request.type_sms = 1;
@@ -221,56 +273,9 @@ int main(void){
                 status = msgsnd(id_sms, &send_and_request, sizeof(send_and_request) - sizeof(send_and_request.mtype), 0);
                     error_func(status); 
             }  
-        }
-
-    } else if(0 < pid) {
-
-        //- запоминаем начальные координаты, чтобы двигаться
-        x_names = 1;
-        y_names = 4;
-        x_sms = 1;
-        y_sms = 4;
-
-        //- входим в цикл, когда нам сервер предоставит новые данные, либо отключит от сессии
-        while(1){
-
-            sleep(1);
-            printf("(2)Блокируюсь перед получением нового сообщения\n");
-            status_rcv = msgrcv(id_sms, &send_and_request, sizeof(send_and_request) - sizeof(send_and_request.mtype), send_and_request.priority, 0);
-            printf("(2)Разблокировался\n");
-                    error_func(status_rcv);
             
-            if((-1 == send_and_request.type_sms) || (-1 == send_and_request.amount_users)){
-                break;
-            } else {
-
-                if(4 == send_and_request.type_sms){
-                    //- тут обрабатываем окно с пользователями;
-                    werase(wnd_urers);
-                    start_logo(wnd_see_sms, wnd_urers, wnd_send_sms);
-                    for(i = 0; i < send_and_request.amount_users; i++){
-                        wmove(wnd_urers, 4 + i, 1);
-                        wprintw(wnd_urers,"%s", send_and_request.users[i]);
-                        wrefresh(wnd_urers);
-                    }
-
-                } else if(5 == send_and_request.type_sms){
-                    //- тут обрабатываем окно с смс
-                    if(MAX_SMS + 4 == y_sms){
-                        werase(wnd_see_sms);
-                        x_sms = 1;
-                        y_sms = 3;
-                    }
-
-                    y_sms++;
-
-                    wprintw(wnd_urers,"%s", send_and_request.sms);
-                    wrefresh(wnd_see_sms);
-                }
-
-                wmove(wnd_send_sms, 1, 1);
-            }
         }
+
         
         pid = wait(&status);
             error_func(pid);
@@ -284,7 +289,7 @@ int main(void){
 
         endwin();   
 
-        printf("Блольше я не должен блокироваться\n");
+        //printf("Блольше я не должен блокироваться\n");
     }
 
     exit(EXIT_SUCCESS);

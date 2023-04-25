@@ -29,7 +29,7 @@ pthread_mutex_t mutex_new_user;
 //- структура, которая будет содержать сообщение пользователя и рассылку всем пользователям;
 struct send_and_request{
     long mtype;
-    char sms[28];
+    char sms[50];
     char users[10][20];
     int amount_users; //количетсво пользователей в сети;
     int num_user; //- номер пользователя на сервере;
@@ -68,8 +68,10 @@ int main(void){
     int free_prio = 10;
     //- счетчик и помошник;
     int i = 0, i2 = 0;
-    //- 
+    //- идентификатор работы сервера
     int work = 1;
+    //- индентификатор пользователя на сервере; 
+    int num_user_server;
 
     key_sms = ftok(name_file, 6);    
         error_func(key_sms);
@@ -109,10 +111,10 @@ int main(void){
 
                         //- отмечаем сколько всего пользователей в системе;
                         send_and_request_users_data.amount_users = last_user;
-                        //отправляем по приоритету нового пользователя в системе;
-                        send_and_request_users_data.type_sms = 4;
                         //- добавляем нового пользователя в общую структуру данных;
                         strcpy(send_and_request_users_data.users[i],send_and_request.users[0]);
+                        //отправляем по приоритету нового пользователя в системе;
+                        send_and_request_users_data.type_sms = 4;
                         //- отправляем всем, что появился новый пользователь;
                         for(i = 0; i < MAX_USERS; i++){
                             if(0 != mas_prio[i]){
@@ -137,35 +139,45 @@ int main(void){
                         //- выходим из цикла, когда добавили пользователя;
                         break;
 
-                    } else if(MAX_USERS - 1 == 9){
+                    }else if(i == 9){
                         //- отправляем пользователю, что сессия переполнена;
                         send_and_request.priority = -1;
                         send_and_request.mtype = PRIOR_RECEPTION;
 
                         status = msgsnd(id_sms, &send_and_request, sizeof(send_and_request) - sizeof(send_and_request.mtype), 0);
                             error_func(status);
+                        break;
                     }
                 }
+                break;
             //- запрос на выход;
             case 1:
-                printf("Пользователь %s пытается выйти из сессии\n", send_and_request.users[0]);
+
+                for(i = 0; i < MAX_USERS; i++){
+                    if(mas_prio[i] == send_and_request.priority){
+                        num_user_server = i;
+                    }
+                }
+                
+
+                printf("Пользователь %s пытается выйти из сессии\n", send_and_request_users_data.users[num_user_server]);
                 //- отправляем процессу пользователя, чтобы он вышел;
-                send_and_request.mtype = mas_prio[send_and_request.num_user];
+                send_and_request_users_data.mtype = mas_prio[num_user_server];
                 send_and_request_users_data.type_sms = -1;
                 status = msgsnd(id_sms, &send_and_request_users_data, sizeof(send_and_request_users_data) - sizeof(send_and_request_users_data.mtype), 0);
                         error_func(status);
-                //- удаляем пользователя из массива приоритетов;
-                mas_prio[send_and_request.num_user] = 0;
 
                 //последнего пользоваетля переместим на место вышедшего пользователя;
-                strcpy(send_and_request_users_data.users[last_user], send_and_request_users_data.users[send_and_request.num_user]);
+                strcpy(send_and_request_users_data.users[num_user_server], send_and_request_users_data.users[last_user - 1]);
                 //занулим пространство последнего пользователя;
-                memset(send_and_request.users[last_user], 0, sizeof(send_and_request.users[last_user]));
-                //- увеличиваем количетсво пользователей в сесии;
+                memset(send_and_request_users_data.users[last_user - 1], 0, sizeof(send_and_request_users_data.users[last_user - 1]));
+                //- удаляем пользователя из массива приоритетов;
+                mas_prio[num_user_server] = mas_prio[last_user - 1];
+                mas_prio[last_user - 1] = 0;
+                //- увеличиваем доступное количетсво пользователей в сесии;
                 last_user--;
-                
                 send_and_request_users_data.amount_users--;
-                //отправляем по приоритету нового пользователя в системе;
+                //отправляем по приоритету список пользователей в сети;
                 send_and_request_users_data.type_sms = 4;
 
                 for(i = 0; i < MAX_USERS; i++){
@@ -179,18 +191,52 @@ int main(void){
                 }
 
                 break;
-            //- выключение сервера
-            case 6:
-                printf("Пользователь %s пытается выключить сервер\n", send_and_request.users[0]);
-                send_and_request_users_data.type_sms = -1;
-                send_and_request_users_data.amount_users = -1;
+            case 3:
+                for(i = 0; i < MAX_USERS; i++){
+                    if(mas_prio[i] == send_and_request.priority){
+                        num_user_server = i;
+                    }
+                }
+
+                for(i = 0; i < MAX_USERS; i++){
+                    if(mas_prio[i] == send_and_request.priority){
+                        num_user_server = i;
+                    }
+                }
+                
+                memset(send_and_request_users_data.sms, 0, sizeof(send_and_request_users_data.sms));
+                strcat(send_and_request_users_data.sms, send_and_request_users_data.users[num_user_server]);
+                strcat(send_and_request_users_data.sms, ": ");
+                strcat(send_and_request_users_data.sms, send_and_request.sms);
+
+                printf("Пользователь %s отправляет сообщение\n", send_and_request_users_data.users[num_user_server]);
+
+                send_and_request_users_data.type_sms = 5;
+
                 for(i = 0; i < MAX_USERS; i++){
                     if(0 != mas_prio[i]){
                         send_and_request_users_data.mtype = mas_prio[i];
                         send_and_request_users_data.priority = mas_prio[i];
                         send_and_request_users_data.num_user = i;
                         status = msgsnd(id_sms, &send_and_request_users_data, sizeof(send_and_request_users_data) - sizeof(send_and_request_users_data.mtype), 0);
-                        error_func(status);
+                            error_func(status);
+                    }
+                }
+
+
+                break;
+            //- выключение сервера
+            case 6:
+                printf("Пользователь %s пытается выключить сервер\n", send_and_request.users[0]);
+                send_and_request_users_data.amount_users = -1;
+
+                for(i = 0; i < MAX_USERS; i++){
+                    if(0 != mas_prio[i]){
+                        send_and_request_users_data.mtype = mas_prio[i];
+                        send_and_request_users_data.priority = mas_prio[i];
+                        send_and_request_users_data.num_user = i;
+                        status = msgsnd(id_sms, &send_and_request_users_data, sizeof(send_and_request_users_data) - sizeof(send_and_request_users_data.mtype), 0);
+                            error_func(status);
                     }
                 }
                 
