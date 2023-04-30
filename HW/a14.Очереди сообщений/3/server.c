@@ -244,6 +244,7 @@ int main(void){
 
                 break;
             default:
+                breal;
         }
 
     } 

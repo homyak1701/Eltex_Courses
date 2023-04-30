@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <pthread.h>
+#include <string.h>
 
-#define NUM_THREAD 100
+//- количетсво потоков;
+#define NUM_THREAD 10
 
+//- глобальная переменная, коотрую будем изменять;
 long a = 0;
 
 void *thread_start(void *arg){
@@ -26,6 +29,11 @@ int main(void){
     pthread_t thread[NUM_THREAD];
     int i;
     int index[NUM_THREAD];
+    
+    for(i = 0; i < NUM_THREAD; i++){
+        index[i] = 0;
+    }
+
     int index1;
     int *s;
 
