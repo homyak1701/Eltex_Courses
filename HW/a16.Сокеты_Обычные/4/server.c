@@ -7,15 +7,13 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-#define PATH_SOCKET "/path_serv_forever"
-
 #define error_func(a) do{if(-1 == a){ printf("line:%d\n", __LINE__); \
                                         perror("error"); exit(EXIT_FAILURE);}} while(0)
 
 int main(void){
 
-    struct sockaddr_un serv;
-    struct sockaddr_un client;
+    struct sockaddr_in serv;
+    struct sockaddr_in client;
     //- дескриптор сокета;
     int fd_sock;
     //- для проверки правильности завершения программы;
@@ -28,19 +26,18 @@ int main(void){
     socklen_t len;
 
     //- создаем сокет;
-    fd_sock = socket(AF_LOCAL, SOCK_DGRAM, 0);
+    fd_sock = socket(AF_INET, SOCK_DGRAM, 0);
         error_func(fd_sock);
 
     //-описывам наш сервер;Я просто н
-    serv.sun_family = AF_LOCAL;
-    strcpy(serv.sun_path, PATH_SOCKET);
+    serv.sin_family = AF_INET;
+    serv.sin_port = htons(3457);
+    serv.sin_addr.s_addr = inet_addr("127.0.0.1");
 
     status = bind(fd_sock, (struct sockaddr *)&serv, sizeof(serv));
         error_func(status);
     
     printf("Сделали сервер, теперь ждем, пока кто-нибудь напишет\n");
-    
-    //printf("Присоединился клиент, теперь принимаем от него сообещения\n");
 
     while(1){
 
@@ -51,7 +48,7 @@ int main(void){
         amount_byte = recvfrom(fd_sock, (void *)&buf, sizeof(buf), 0, (struct sockaddr *)&client, &len);
             error_func(amount_byte);
 
-        if(0 == client.sun_family){
+        if(0 == client.sin_family){
             printf("Ничего не передалось\n");
             break;
         }
@@ -70,8 +67,6 @@ int main(void){
     }
 
     close(fd_sock);
-
-    unlink(PATH_SOCKET);
 
     exit(EXIT_SUCCESS);
 }

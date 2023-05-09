@@ -7,15 +7,12 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-#define PATH_SOCKET "/path_serv_forever"
-#define PATH_CLIENT "/path_client_forever"
-
 #define error_func(a) do{if(-1 == a){ printf("line:%d\n", __LINE__); \
                                         perror("error"); exit(EXIT_FAILURE);}} while(0)
 
 int main(void){
 
-    struct sockaddr_un serv, client;
+    struct sockaddr_in serv, client;
     //- дескриптор сокета;
     int fd_serv, fd_client;
     //- проверка возвращаемых функций;
@@ -24,16 +21,11 @@ int main(void){
     //- буфер для записи;
     char sms[100];
 
-    fd_serv = socket(AF_LOCAL, SOCK_DGRAM, 0);
+    fd_serv = socket(AF_INET, SOCK_DGRAM, 0);
 
-    serv.sun_family = AF_LOCAL;
-    strcpy(serv.sun_path, PATH_SOCKET);
-
-    client.sun_family = AF_LOCAL;
-    strcpy(client.sun_path, PATH_CLIENT);
-
-    status = bind(fd_serv, (struct sockaddr *)&client, sizeof(client));
-        error_func(status);
+    serv.sin_family = AF_INET;
+    serv.sin_port = htons(3457);
+    serv.sin_addr.s_addr = inet_addr("127.0.0.1");
 
     //- используем connect() чтобы не использовать каждый раз sendto()
     status = connect(fd_serv, (struct sockaddr *)&serv, sizeof(serv));
@@ -63,8 +55,6 @@ int main(void){
     }
 
     close(fd_serv);
-
-    unlink(PATH_CLIENT);
 
     exit(EXIT_SUCCESS);
 }
