@@ -5,8 +5,9 @@
 #include <sys/un.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 
-#define PATH_SOCKET "/path_3"
+#define PATH_SOCKET "/path_serv_forever"
 
 #define error_func(a) do{if(-1 == a){ printf("line:%d\n", __LINE__); \
                                         perror("error"); exit(EXIT_FAILURE);}} while(0)
@@ -30,43 +31,44 @@ int main(void){
     fd_sock = socket(AF_LOCAL, SOCK_DGRAM, 0);
         error_func(fd_sock);
 
-    //-описывам наш сервер;
+    //-описывам наш сервер;Я просто н
     serv.sun_family = AF_LOCAL;
     strcpy(serv.sun_path, PATH_SOCKET);
 
     status = bind(fd_sock, (struct sockaddr *)&serv, sizeof(serv));
         error_func(status);
     
-    printf("Начинаем прослушивать клиентов\n");
-
-    status = listen(fd_sock, 5);
-        error_func(status);
+    printf("Сделали сервер, теперь ждем, пока кто-нибудь напишет\n");
     
-    len = sizeof(client);
-    fd_clients = accept(fd_sock, (struct sockaddr *)&client, &len);
-        error_func(fd_clients);
-
-    printf("Клиент присоединился к серверу\n");
+    //printf("Присоединился клиент, теперь принимаем от него сообещения\n");
 
     while(1){
 
-        amount_byte = recv(fd_clients, (void *)&buf, sizeof(buf), 0);
+        memset(&client,0,sizeof(client));
+
+        len = sizeof(client);
+
+        amount_byte = recvfrom(fd_sock, (void *)&buf, sizeof(buf), 0, (struct sockaddr *)&client, &len);
             error_func(amount_byte);
+
+        if(0 == client.sun_family){
+            printf("Ничего не передалось\n");
+            break;
+        }
 
         if(!strcmp(buf,"exit")){
             break;
         }
         
-        printf("Клиент пишет: %s", buf);
+        printf("Клиент пишет: %s\n", buf);
         printf("Отвечаем ему: ладно\n");
 
         strcpy(buf, "ok");
 
-        amount_byte = send(fd_clients, (void *)buf, sizeof(buf), 0);
+        amount_byte = sendto(fd_sock, (void *)&buf, sizeof(buf), 0, (struct sockaddr *)&client, len);
             error_func(amount_byte);
     }
 
-    close(fd_clients);
     close(fd_sock);
 
     unlink(PATH_SOCKET);
