@@ -38,7 +38,17 @@ int main(void){
     
     amount_byte = recv(fd_serv, (void *)&serv, sizeof(serv), 0);
             error_func(amount_byte);
-    
+
+    shutdown(fd_serv, SHUT_RDWR);
+    close(fd_serv);
+
+    fd_serv = socket(AF_INET, SOCK_STREAM, 0);
+        error_func(fd_serv);
+
+    printf("Я присоединяюсь по хосту %d\n", htons(serv.sin_port));
+    status = connect(fd_serv, (struct sockaddr *)&serv, sizeof(serv));
+        error_func(status);
+
     while(1){
 
         printf("Напишем сереверу число: ");

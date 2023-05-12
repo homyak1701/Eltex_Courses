@@ -40,21 +40,15 @@ pthread_cond_t condition[AMOUNT_MATH_SERV] = {
 };  
 
 //- дескрипторы для клиентов;
-int fd_clients[AMOUNT_MATH_SERV];
+int fd_clients[AMOUNT_MATH_SERV] = { 0 };
 //- количетсво потоков поддерживаемые сервером;
-pthread_t index_pthread[AMOUNT_MATH_SERV];
+pthread_t index_pthread[AMOUNT_MATH_SERV] = { 0 };
 //- дескрипторы для потоков, обрабатывающие клиентов;
-int fd_math_serv[AMOUNT_MATH_SERV];
+int fd_math_serv[AMOUNT_MATH_SERV] = { 0 };
 //- идентификатор еще не занятого сервера;
 int index_free_serv = 0;
 //- начальный порт;
 int port_serv[AMOUNT_MATH_SERV][2] = {{5689,0},{5690,0},{5691,},{5692,0},{5693,0},{5694,0},{5695,0},{5696,0},{5697,0},{5698,0}};
-//- принимаем дескриптор;
-int invite_fd;
-//- ключ для семафоров;
-key_t key_sem;
-//- идентификатор семафора;
-int index_sem;
 
 //- мьютекст по обработки новых/выходящих клиентов
 pthread_mutex_t mutex_clients =  PTHREAD_MUTEX_INITIALIZER;
@@ -70,33 +64,34 @@ int main(void){
     ssize_t amount_byte;
     //- тут храним размер для фукнции accept();
     socklen_t len;
-    //- создаем сокет;
-    fd_sock = socket(AF_INET, SOCK_STREAM, 0);
-        error_func(fd_sock);
     //- индекс для циклов;
     int i = 0;
-
-    
-
-    //- сначала создадим семафор, чтобы заблокирвоать процессы в
-    //ожидании клиентов
-    key_sem = ftok(NAME_FILE_KEY, 45);
-    index_sem = semget(key_sem, 15, IPC_CREAT | 0666);
-        error_func(index_sem);
+    //- принимаем дескриптор клиента;
+    int invite_fd;
 
     //- создадим пул обслуживающих серверов;
     for(i = 0; i < AMOUNT_MATH_SERV; i++){
 
         fd_math_serv[i] = socket(AF_INET, SOCK_STREAM, 0);
-            error_func(fd_sock);
+            error_func(fd_math_serv[i]);
         
         serv.sin_family = AF_INET;
         serv.sin_port = htons(port_serv[i][0]);
         serv.sin_addr.s_addr = inet_addr("127.0.0.1");
 
-        pthread_create(&index_pthread[i], NULL, math_server, (void *)&i);
+        status = bind(fd_math_serv[i], (struct sockaddr *)&serv, sizeof(serv));
+            error_func(status);
 
+        status = listen(fd_math_serv[i], 1);
+            error_func(status);
+
+        //- потоку обязательно нужно передать дескриптор сокета обрабатывающего сервера;
+        pthread_create(&index_pthread[i], NULL, math_server, (void *)&(fd_math_serv[i]));
     }
+
+    //- создаем сокет;
+    fd_sock = socket(AF_INET, SOCK_STREAM, 0);
+        error_func(fd_sock);
 
     //-описывам наш сервер;
     serv.sin_family = AF_INET;
@@ -126,26 +121,16 @@ int main(void){
         //- ищем свободный обрабатывающий сервер;
         for(i = 0; i < AMOUNT_MATH_SERV; i++){
             if(0 == port_serv[i][1]){
+                port_serv[i][1] = 1;
                 break;
             }
         }
 
-        //- прикрепляем нового клиента к серверу;
-        fd_clients[i] = invite_fd;
-
         //- обновляем нужные дынные перед отправкой пользователю;
-        serv.sin_family = AF_INET;
         serv.sin_port = htons(port_serv[i][0]);
-        serv.sin_addr.s_addr = inet_addr("127.0.0.1");
         //-отправляем пользователю информацию об нужном потоке;
-        amount_byte = send(fd_clients[index_free_serv], (void *)&serv, sizeof(serv), 0);
+        amount_byte = send(invite_fd, (void *)&serv, sizeof(serv), 0);
             error_func(amount_byte);
-
-        //- говорим обрабатывающему серверу, чтобы тот занялся клиентом;
-        printf("текущие значение семафора %d установлено в %d\n",i,semctl(index_sem, i, GETVAL));
-
-        status = semctl(index_sem, i, SETVAL, 0);
-            error_func(status);
 
         pthread_mutex_unlock(&mutex_clients);
 
@@ -163,11 +148,8 @@ int main(void){
 
 void *math_server(void *arg){
 
-    //- идентификатор семафора
-    key_t key_sem;
-    int index_sem;
     //- индекс обрабатывающего потока в системе;
-    int index_thread = *((int *)arg);
+    int fd_thread = *((int *)arg);
     //- то число, которое нужно будет разделить на два;
     int num;
     int i = 0;
@@ -175,33 +157,27 @@ void *math_server(void *arg){
     int fd_client_math_serv;
     //- для ловки ошибок;
     int status;
-
-    //- структуры, чтобы начать и закончить работать с клиентом
-    struct sembuf for_unlock[2] = {{index_thread,1,0},{index_thread,0,0}};
-
-    //- тут тоже создадим семафор;
-    key_sem = ftok(NAME_FILE_KEY, 45);
-    index_sem = semget(key_sem, 15, 0666);
+    //- для принятия дыннх от клиента
+    struct sockaddr_in client;
+    //- тут храним размер для фукнции accept();
+    socklen_t len = sizeof(client);
+    //- принимаем дескриптор клиента;
+    int invite_fd;
 
     while(1){
 
         sleep(1);
 
-        //- ждем по индексу потока, пока нам предоставят пользователя;
-        printf("Поток %d ждет клиента\n", fd_math_serv[index_thread]);
-        //- блокируемся, пока нет клиента
-        status = semop(index_sem, for_unlock, 2);
-            error_func(status);
-        printf("К потоку %d присоединился клиент\n", fd_math_serv[index_thread]);
-
-        
-        fd_client_math_serv = fd_clients[index_thread];
+        printf("Поток %d ждет клиента\n", fd_thread);
+        invite_fd = accept(fd_thread, (struct sockaddr *)&client, &len);
+            error_func(invite_fd);
+        printf("Поток %d дождался клиента\n", fd_thread);
 
         while(1){
             
             sleep(1);
 
-            amount_byte = recv(fd_client_math_serv, (void *)&num, sizeof(num), 0);
+            amount_byte = recv(invite_fd, (void *)&num, sizeof(num), 0);
                 error_func(amount_byte);
 
             if(-1 == num){
@@ -212,16 +188,17 @@ void *math_server(void *arg){
 
             num = num / 2;
 
-            amount_byte = send(fd_client_math_serv, (void *)&num, sizeof(num), 0);
+            amount_byte = send(invite_fd, (void *)&num, sizeof(num), 0);
             error_func(amount_byte);
         }
         
         pthread_mutex_lock(&mutex_clients);
 
-        close(fd_clients[index_thread]);
-        fd_clients[index_thread] = 0;
+        close(invite_fd);
+        close(fd_thread);
 
-        port_serv[index_thread][1] = 0;
+        //- механизм высвобождения порта не был изобретен;
+        //... port_serv[fd_thread][1] = 0;
 
         pthread_mutex_unlock(&mutex_clients);
     }
