@@ -13,22 +13,18 @@
                                         perror("error"); exit(EXIT_FAILURE);}} while(0)
 
 #define AMOUNT_MATH_SERV 10 
+#define SUM 10
 
 //- функция для потока, которая будет делить числа на два;
 void *math_server(void *arg);
 
-//- дескрипторы для клиентов;
-int fd_clients[AMOUNT_MATH_SERV];
 //- количетсво потоков поддерживаемые сервером;
 pthread_t index_pthread[AMOUNT_MATH_SERV];
-//- дескрипторы для потоков, обрабатывающие клиентов;
-int fd_math_serv[AMOUNT_MATH_SERV];
 //- идентификатор еще не занятого сервера;
 int index_free_serv = 0;
-//- начальный порт
-int port_serv[AMOUNT_MATH_SERV] = {5689,5690,5691,5692,5693,5694,5695,5696,5697,5698};
-//- принимаем дескриптор
-int invite_fd;
+//- начальный порт для потока
+int port_serv[10][2] = {{7780 + SUM,0},{7781 + SUM,0},{7782 + SUM,0},{7783 + SUM,0},{7784 + SUM,0},{7785 + SUM,0},{7786 + SUM,0},{7787 + SUM,0},{7788 + SUM,0},{7789 + SUM,0}};
+int port_thread = 0;
 
 //- мьютекст по обработки новых/выходящих клиентов
 pthread_mutex_t mutex_clients = PTHREAD_MUTEX_INITIALIZER;
@@ -49,6 +45,10 @@ int main(void){
         error_func(fd_sock);
     //- индекс для циклов;
     int i;
+    //- дескрипторы клиентов;
+    int invite_fd;
+    //- дескриптор обрабатывающего сервера;
+    int fd_math_serv;
 
     //-описывам наш сервер;
     serv.sin_family = AF_INET;
@@ -70,27 +70,46 @@ int main(void){
 
         sleep(1);
 
+        //- ждем, пока клиент присоединится;
         invite_fd = accept(fd_sock, (struct sockaddr *)&client, &len);
             error_func(invite_fd);
 
         printf("Еще один клиент присоединился к серверу\n");
-
+        //- обрабатываем общения данные с потоками;
         pthread_mutex_lock(&mutex_clients);
 
-        fd_clients[index_free_serv] = invite_fd;
+        fd_math_serv = -1;
 
-        fd_math_serv[index_free_serv] = socket(AF_INET, SOCK_STREAM, 0);
-            error_func(fd_sock);
-        
+        //- создаем обрабатывающий сокет;
+        fd_math_serv = socket(AF_INET, SOCK_STREAM, 0);
+            error_func(fd_math_serv);
+            
+        //- создаем обрабатывающий сервер;
         serv.sin_family = AF_INET;
-        serv.sin_port = htons(port_serv[index_free_serv]);
+        //-присваиваем свободный порт;
+        for(i = 0; i < AMOUNT_MATH_SERV; i++){
+            if(0 == port_serv[i][1]){
+                serv.sin_port = htons(port_serv[i][0]);
+                printf("Выбран порт %d\n",htons(port_serv[i][0]));
+                port_serv[i][1] = 1;
+                break;
+            }
+        }
         serv.sin_addr.s_addr = inet_addr("127.0.0.1");
 
-        pthread_create(&index_pthread[index_free_serv], NULL, math_server, (void *)&fd_clients[index_free_serv]);
+        //- создаем новый сервер, который будет обслуживать клиента;
+        status = bind(fd_math_serv, (struct sockaddr *)&serv, sizeof(serv));
+            error_func(status);
+        //- создаем очередь для обрабатывающего сервера;
+        status = listen(fd_math_serv, 1);
+            error_func(status);
 
-        amount_byte = send(fd_clients[index_free_serv], (void *)&serv, sizeof(serv), 0);
+        //- создаем поток, который будет обрабатывать клиента;
+        pthread_create(&index_pthread[index_free_serv], NULL, math_server, (void *)&fd_math_serv);
+        //- отправляем клиенту данные о обрабатывающем сервере;
+        amount_byte = send(invite_fd, (void *)&serv, sizeof(serv), 0);
             error_func(amount_byte);
-        
+        //- фиксируем, что у нас стало больше клиентов;
         index_free_serv++;
 
         pthread_mutex_unlock(&mutex_clients);
@@ -105,19 +124,42 @@ int main(void){
     exit(EXIT_SUCCESS);
 }
 
-
-
 void *math_server(void *arg){
 
-    //- дескриптор клиента;
-    int fd_client_math_serv = *((int *)arg);
+    //- дескриптор обрабатывающего сервера;
+    int fd_math_serv = *((int *)arg);
     //- то число, которое нужно будет разделить на два;
     int num;
+    //- индекс для циклов;
     int i = 0;
+    //- для проверки ошибок;
     ssize_t amount_byte;
+    //- структуры для сетевого общения
+    struct sockaddr_in serv;
+    struct sockaddr_in client;
+    //- для фиксирования ошибок;
+    int status;
+    //- дескриптор клиента;
+    int invite_fd;
+    //- тут храним размер для фукнции accept();
+    socklen_t len;
+    //- для высвобождения порта;
+    int reuse = 1;
+
+    len = sizeof(client);
+
+    pthread_mutex_lock(&mutex_clients);
+
+    //- теперь он готов принимать новых клиентов;
+    invite_fd = accept(fd_math_serv, (struct sockaddr *)&client, &len);
+            error_func(invite_fd);
+
+    port_thread++;
+
+    pthread_mutex_unlock(&mutex_clients);
 
     while(1){
-        amount_byte = recv(fd_client_math_serv, (void *)&num, sizeof(num), 0);
+        amount_byte = recv(invite_fd, (void *)&num, sizeof(num), 0);
             error_func(amount_byte);
 
         if(-1 == num){
@@ -128,31 +170,21 @@ void *math_server(void *arg){
 
         num = num / 2;
 
-        amount_byte = send(fd_client_math_serv, (void *)&num, sizeof(num), 0);
+        amount_byte = send(invite_fd, (void *)&num, sizeof(num), 0);
         error_func(amount_byte);
     }
 
     pthread_mutex_lock(&mutex_clients);
 
-    for(i = 0; i < AMOUNT_MATH_SERV; i++){
-        if(fd_client_math_serv == fd_clients[i]){
-            break;
-        }
-    }
+    port_serv[i][1] = 0;
 
-    num =  port_serv[i];
-    port_serv[i] = port_serv[index_free_serv - 1];
-    port_serv[index_free_serv - 1] = num;
+    close(invite_fd);
+    close(fd_math_serv);
+    setsockopt(fd_math_serv, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
 
-    close(fd_clients[i]);
-    fd_clients[i] = fd_clients[index_free_serv - 1];
-    fd_clients[index_free_serv - 1] = 0;
 
     index_pthread[i] = index_pthread[index_free_serv - 1];
     index_pthread[index_free_serv - 1] = 0;
-
-    fd_math_serv[i] = fd_math_serv[index_free_serv - 1];
-    fd_math_serv[index_free_serv - 1] = 0;
     
     index_free_serv--;
 
